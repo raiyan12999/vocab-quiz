@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gregmat Word Quiz</title>
+  <style>
+    :root {
+      --bg: #f5f4ef;
+      --card: #fff;
+      --tx: #1c2330;
+      --mut: #667085;
+      --bd: #e3e0d7;
+      --ac: #1f3a5f;
+      --acb: #e8eef6;
+      --ok: #2f7d4f;
+      --okb: #e8f3ec;
+      --no: #b3382c;
+      --nob: #faeceb;
+      --wn: #a8761a;
+      --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #121519;
+        --card: #1a1e24;
+        --tx: #e6e8ec;
+        --mut: #9099a8;
+        --bd: #2a3039;
+        --ac: #8db4dc;
+        --acb: #1f2a38;
+        --ok: #5fbf86;
+        --okb: #17291f;
+        --no: #e5786c;
+        --nob: #2c1b19;
+        --wn: #d9a441
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #121519;
+      --card: #1a1e24;
+      --tx: #e6e8ec;
+      --mut: #9099a8;
+      --bd: #2a3039;
+      --ac: #8db4dc;
+      --acb: #1f2a38;
+      --ok: #5fbf86;
+      --okb: #17291f;
+      --no: #e5786c;
+      --nob: #2c1b19;
+      --wn: #d9a441
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--tx);
+      font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-variant-numeric: tabular-nums
+    }
+
+    #app {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 16px 56px
+    }
+
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding-bottom: 14px
+    }
+
+    header h1 {
+      margin: 0;
+      font: 600 24px var(--serif);
+      letter-spacing: -.01em
+    }
+
+    header h1 small {
+      display: block;
+      font: 600 11px system-ui;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--mut);
+      margin-bottom: 2px
+    }
+
+    nav {
+      display: flex;
+      gap: 22px;
+      border-bottom: 1px solid var(--bd);
+      margin-bottom: 20px
+    }
+
+    nav button {
+      border: 0;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: none;
+      padding: 8px 0;
+      margin-bottom: -1px;
+      color: var(--mut);
+      font-weight: 600
+    }
+
+    nav button.on {
+      color: var(--ac);
+      border-color: var(--ac)
+    }
+
+    button {
+      font: inherit;
+      color: var(--tx);
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: background .12s, border-color .12s, color .12s
+    }
+
+    button:hover:not(:disabled) {
+      border-color: var(--ac)
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--ac);
+      outline-offset: 2px
+    }
+
+    button.on {
+      border-color: var(--ac);
+      background: var(--acb);
+      color: var(--ac);
+      font-weight: 600
+    }
+
+    button.pri {
+      background: var(--ac);
+      border-color: var(--ac);
+      color: var(--bg);
+      font-weight: 600
+    }
+
+    button.dng {
+      color: var(--no)
+    }
+
+    button.dng:hover:not(:disabled) {
+      border-color: var(--no)
+    }
+
+    button:disabled {
+      opacity: .4;
+      cursor: default
+    }
+
+    button.sm {
+      padding: 3px 10px;
+      font-size: 13px
+    }
+
+    nav button,
+    header button.sm {
+      border-top: 0;
+      border-left: 0;
+      border-right: 0
+    }
+
+    header button.sm {
+      border: 1px solid var(--bd)
+    }
+
+    .enter {
+      animation: in .18s ease
+    }
+
+    @keyframes in {
+      from {
+        opacity: 0;
+        transform: translateY(4px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      * {
+        animation: none !important;
+        transition: none !important
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font: 600 18px var(--serif)
+    }
+
+    .mut {
+      color: var(--mut);
+      font-size: 13.5px
+    }
+
+    .lbl {
+      color: var(--mut);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin: 16px 0 8px
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 8px 0
+    }
+
+    .spread {
+      justify-content: space-between
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1px;
+      background: var(--bd);
+      border: 1px solid var(--bd);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px
+    }
+
+    .stats div {
+      background: var(--card);
+      padding: 14px 16px
+    }
+
+    .stats b {
+      display: block;
+      font: 600 26px var(--serif)
+    }
+
+    .stats span {
+      color: var(--mut);
+      font-size: 12px
+    }
+
+    .prompt {
+      font: 600 34px/1.2 var(--serif);
+      margin: 6px 0 20px;
+      letter-spacing: -.01em
+    }
+
+    .prompt.def {
+      font: 400 20px/1.45 var(--serif)
+    }
+
+    .opt {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 8px;
+      padding: 12px 14px
+    }
+
+    .opt kbd {
+      flex: none;
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      font: 600 12px system-ui;
+      border: 1px solid var(--bd);
+      border-radius: 50%;
+      color: var(--mut)
+    }
+
+    .opt.ok {
+      background: var(--okb);
+      border-color: var(--ok)
+    }
+
+    .opt.ok kbd {
+      background: var(--ok);
+      border-color: var(--ok);
+      color: var(--card)
+    }
+
+    .opt.no {
+      background: var(--nob);
+      border-color: var(--no)
+    }
+
+    .opt.no kbd {
+      background: var(--no);
+      border-color: var(--no);
+      color: var(--card)
+    }
+
+    .bar {
+      height: 4px;
+      background: var(--bd);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 10px 0 18px
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: var(--ac);
+      transition: width .3s
+    }
+
+    .item {
+      padding: 12px 0;
+      border-top: 1px solid var(--bd);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start
+    }
+
+    .item:first-child {
+      border-top: 0;
+      padding-top: 0
+    }
+
+    .item>div:first-child {
+      flex: 1;
+      min-width: 0
+    }
+
+    .item b {
+      margin-right: 8px;
+      font-family: var(--serif);
+      font-size: 16px
+    }
+
+    .acts {
+      display: flex;
+      gap: 6px;
+      flex: none
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 8px;
+      border-radius: 99px;
+      border: 1px solid var(--bd);
+      color: var(--mut);
+      margin-right: 4px;
+      white-space: nowrap
+    }
+
+    .badge.weak,
+    .badge.dup {
+      color: var(--no);
+      border-color: var(--no)
+    }
+
+    .badge.mastered {
+      color: var(--ok);
+      border-color: var(--ok)
+    }
+
+    .badge.new {
+      color: var(--ac);
+      border-color: var(--ac)
+    }
+
+    input[type=text],
+    textarea {
+      width: 100%;
+      font: inherit;
+      background: var(--bg);
+      color: var(--tx);
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      padding: 9px 12px
+    }
+
+    textarea {
+      min-height: 120px;
+      font: 13px/1.45 ui-monospace, Menlo, monospace
+    }
+
+    .edit {
+      width: 100%;
+      display: grid;
+      gap: 8px
+    }
+
+    .edit textarea {
+      min-height: 60px;
+      font: inherit
+    }
+
+    .big {
+      font: 600 44px var(--serif)
+    }
+
+    .warn {
+      background: var(--nob);
+      color: var(--no);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+      font-size: 14px
+    }
+
+    .note {
+      background: var(--acb);
+      border-radius: 8px;
+      padding: 9px 12px;
+      margin-bottom: 8px;
+      font-size: 14px
+    }
+
+    .dgrp {
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 10px 0
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block
+    }
+
+    svg text {
+      fill: var(--mut);
+      font: 10px system-ui
+    }
+
+    .legend {
+      display: flex;
+      gap: 6px 16px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--mut)
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      margin-right: 6px
+    }
+
+    .hb {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 7px 0;
+      font-size: 14px
+    }
+
+    .hb span:first-child {
+      width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: var(--serif)
+    }
+
+    .hb .bar {
+      flex: 1;
+      margin: 0;
+      height: 6px
+    }
+
+    .hb .bar i {
+      background: var(--no)
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script>
+    const SEED = `abound
+exist in large quantities
+adulterate
+make impure by adding a foreign or inferior substance
+abate
+become less in amount or intensity
+abstain
+refrain from doing, consuming, or partaking in something
+aloof
+distant, cold, or detached in manner
+admonish
+scold or reprimand; take to task
+appease
+make peace with
+amorphous
+having no definite form or distinct shape
+advocate
+a person who pleads for a person, cause, or idea
+abjure
+formally reject or disavow a formerly held belief
+approbation
+official acceptance or agreement
+clangor
+a loud resonant repeating noise
+aesthetic
+characterized by an appreciation of beauty or good taste
+arbitrary
+based on or subject to individual discretion or preference
+austere
+of a stern or strict bearing or demeanor
+aggrandize
+embellish; increase the scope, power, or importance of
+anomalous
+deviating from the general or common order or type
+cherish
+be fond of
+conventional
+following accepted customs and proprieties
+affectation
+a deliberate pretense or exaggerated display
+archaic
+so extremely old as seeming to belong to an earlier period
+belie
+be in contradiction with
+alacrity
+liveliness and eagerness
+antipathy
+a feeling of intense dislike
+corroborate
+give evidence for
+debunk
+expose while ridiculing
+alleviate
+provide physical relief, as from pain
+clamorous
+conspicuously and offensively loud
+capricious
+determined by chance or impulse rather than by necessity
+ambivalent
+uncertain or unable to decide about what course to follow`;
+
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const day = (d = new Date()) => d.toLocaleDateString('en-CA');
+    const norm = s => String(s).toLowerCase().replace(/[^\p{L}\p{N}\s'-]/gu, '').replace(/\s+/g, ' ').trim();
+    let NID = 1; const uid = () => 'w' + (NID++);
+    const mk = p => ({ id: uid(), w: p.w, d: p.d, c: 0, x: 0, s: 0, lw: 0, t: 0 });
+
+    /* ---------- parsing ---------- */
+    function parse(t) {
+      const L = t.split(/\r?\n/).map(l => l.trim()).filter(Boolean), P = []; let sk = 0;
+      const SEP = /\t| [-–—|] |\s*\|\s*/;
+      if (L.length && L.filter(l => SEP.test(l)).length >= L.length * .6) {
+        L.forEach(l => { const m = l.split(SEP); const w = m.shift().trim(), d = m.join(' - ').trim(); w && d ? P.push({ w, d }) : sk++ });
+      } else {
+        for (let i = 0; i + 1 < L.length; i += 2)P.push({ w: L[i], d: L[i + 1] });
+        if (L.length % 2) sk++;
+      }
+      return { P, sk };
+    }
+
+    /* ---------- storage: one localStorage key, debounced writes ---------- */
+    let saveFail = false, dirty = 0, st;
+    function load() {
+      try { const r = JSON.parse(localStorage.getItem('gm2')); if (r && Array.isArray(r.words)) return r } catch (e) { }
+      let words = [];
+      try {
+        const b = JSON.parse(localStorage.getItem('gm_bank') || 'null'), s = JSON.parse(localStorage.getItem('gm_stats') || '{}');
+        if (b && b.length) words = b.map(p => { const z = s[p.w] || {}; return { ...mk(p), c: z.c || 0, x: z.x || 0 } });
+      } catch (e) { }
+      if (!words.length) words = parse(SEED).P.map(mk);
+      return { words, hist: [], days: {}, cfg: {}, theme: 'auto', quiz: null };
+    }
+    function flush() { if (!dirty) return; try { localStorage.setItem('gm2', JSON.stringify(D)); saveFail = false } catch (e) { saveFail = true } dirty = 0 }
+    function save() { dirty = 1; clearTimeout(st); st = setTimeout(flush, 300) }
+    addEventListener('pagehide', flush); document.addEventListener('visibilitychange', () => document.hidden && flush());
+
+    let D = load(), IDX = new Map(), DUP = new Set(), tab = 'quiz', msg = '', filter = 'all', shown = 100, sq = '', ed = null, qt, lastKey = '';
+    D.cfg = Object.assign({ scope: 'all', n: 20, mode: 'w2d' }, D.cfg);
+    function fixIds() { let m = 0; D.words.forEach(w => { const n = +String(w.id || '').slice(1); if (n > m) m = n }); NID = m + 1; D.words.forEach(w => { if (!w.id) w.id = uid() }); IDX = new Map(D.words.map(w => [w.id, w])) }
+    function reindex() { IDX = new Map(D.words.map(w => [w.id, w])) }
+    fixIds(); if (D.quiz && D.quiz.v !== 3) D.quiz = null;
+
+    /* ---------- word status ---------- */
+    const tot = w => w.c + w.x, acc = w => tot(w) ? w.c / tot(w) : null;
+    const isNew = w => !tot(w), isWeak = w => (tot(w) >= 1 && w.lw) || (tot(w) >= 2 && acc(w) < .6), isMast = w => w.s >= 3 && acc(w) >= .8 && !w.lw;
+    const status = w => isNew(w) ? 'new' : isWeak(w) ? 'weak' : isMast(w) ? 'mastered' : 'learning';
+    const weight = w => isNew(w) ? 2 : isWeak(w) ? 4 : isMast(w) ? .4 : 1;
+    const counts = () => { const c = { new: 0, weak: 0, learning: 0, mastered: 0 }; D.words.forEach(w => c[status(w)]++); return c };
+
+    /* ---------- quiz engine (questions store word ids, so edits show live) ---------- */
+    function pick(pool, n) {
+      const a = pool.map(w => [w, weight(w)]), out = []; let sum = a.reduce((s, x) => s + x[1], 0);
+      while (out.length < n && a.length) {
+        let r = Math.random() * sum, i = 0; while (i < a.length - 1 && r >= a[i][1]) { r -= a[i][1]; i++ }
+        const [w, wt] = a.splice(i, 1)[0]; sum -= wt; out.push(w);
+      }
+      return out;
+    }
+    function options(w, dir) {
+      const key = dir === 'w2d' ? 'd' : 'w', seen = new Set([norm(w[key])]), o = [w.id], W = D.words;
+      for (let t = 0; t < 80 && o.length < 4; t++) { const x = W[Math.random() * W.length | 0], n = norm(x[key]); if (!seen.has(n)) { seen.add(n); o.push(x.id) } }
+      for (let i = o.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[o[i], o[j]] = [o[j], o[i]] }
+      return o;
+    }
+    const txt = (id, dir) => { const x = IDX.get(id); return x ? (dir === 'w2d' ? x.d : x.w) : '' };
+    const isRight = q => q.a !== null && q.o[q.a] === q.k;
+    function startQuiz(words) {
+      const m = D.cfg.mode; ed = null;
+      D.quiz = { v: 3, qs: words.map(w => { const dir = m === 'mix' ? (Math.random() < .5 ? 'w2d' : 'd2w') : m; return { k: w.id, dir, o: options(w, dir), a: null } }), i: 0, done: false };
+      save(); render();
+    }
+    function startScope() {
+      const pool = D.words.filter({ all: () => true, weak: isWeak, new: isNew }[D.cfg.scope]);
+      if (D.words.length < 4 || !pool.length) return;
+      startQuiz(pick(pool, Math.min(D.cfg.n, pool.length)));
+    }
+    function answer(k) {
+      const Q = D.quiz; if (!Q || Q.done) return; const q = Q.qs[Q.i]; if (q.a !== null) return;
+      q.a = k; const w = IDX.get(q.k);
+      if (w) { if (isRight(q)) { w.c++; w.s++; w.lw = 0 } else { w.x++; w.s = 0; w.lw = 1 } w.t = Date.now() }
+      const d = day(); D.days[d] = (D.days[d] || 0) + 1; save(); render();
+    }
+    function next() {
+      const Q = D.quiz; Q.i++; ed = null;
+      if (Q.i >= Q.qs.length) { Q.done = true; const r = Q.qs.filter(isRight).length; D.hist.push({ t: Date.now(), n: Q.qs.length, r }); if (D.hist.length > 300) D.hist.shift() }
+      save(); render();
+    }
+    function retry() { const m = D.quiz.qs.filter(q => !isRight(q)).map(q => IDX.get(q.k)).filter(Boolean); if (m.length) startQuiz(m) }
+    function quit() { D.quiz = null; ed = null; save(); render() }
+    function practiceWeak() { D.cfg.scope = 'weak'; tab = 'quiz'; D.quiz = null; startScope() }
+
+    /* ---------- word management ---------- */
+    function removeIds(set) {
+      D.words = D.words.filter(w => !set.has(w.id));
+      if (D.quiz && D.quiz.qs.some(q => set.has(q.k) || q.o.some(k => set.has(k)))) D.quiz = null;
+      reindex(); save();
+    }
+    function delWord(id) { removeIds(new Set([id])); updWords() }
+    function editRow(id) { ed = id; tab === 'words' ? updList() : render(); const e = $('#ed'); if (e) { e.focus(); e.setSelectionRange(e.value.length, e.value.length) } }
+    function cancelEdit() { ed = null; tab === 'words' ? updList() : render() }
+    function saveEdit(id) {
+      const w = IDX.get(id), a = $('#ew').value.trim(), b = $('#ed').value.trim();
+      if (!a || !b) { (a ? $('#ed') : $('#ew')).style.borderColor = 'var(--no)'; return }
+      w.w = a; w.d = b; ed = null; save(); tab === 'words' ? updWords() : render();
+    }
+    function dupGroups() {
+      const m = new Map();
+      D.words.forEach(w => { const k = norm(w.w); if (k) { if (!m.has(k)) m.set(k, []); m.get(k).push(w) } });
+      return [...m.values()].filter(g => g.length > 1);
+    }
+    function keepOnly(id) {
+      const w = IDX.get(id), k = norm(w.w);
+      removeIds(new Set(D.words.filter(x => x !== w && norm(x.w) === k).map(x => x.id))); updWords();
+    }
+    function autoDedupe() {
+      const rm = new Set();
+      dupGroups().forEach(g => { const keep = g.reduce((a, b) => tot(b) > tot(a) ? b : a); g.forEach(w => w !== keep && rm.add(w.id)) });
+      removeIds(rm); msg = `Removed ${rm.size} duplicate entries.`; updWords(); const m = $('#msg'); if (m) { m.textContent = msg; m.hidden = false }
+    }
+    function addPairs(P) {
+      const have = new Set(D.words.map(w => norm(w.w) + '|' + norm(w.d))), names = new Set(D.words.map(w => norm(w.w)));
+      let added = 0, same = 0, flag = 0;
+      P.forEach(p => {
+        const k = norm(p.w) + '|' + norm(p.d); if (have.has(k)) { same++; return }
+        have.add(k); const n = norm(p.w); if (names.has(n)) flag++; names.add(n); D.words.push(mk(p)); added++;
+      });
+      reindex(); return { added, same, flag };
+    }
+    function doImport() {
+      const { P, sk } = parse($('#imp').value), m = $('#msg');
+      if (!P.length) { msg = 'Nothing to import. Put the word on one line and its meaning on the next, or use "word - meaning".' }
+      else {
+        const { added, same, flag } = addPairs(P); save(); $('#imp').value = '';
+        msg = `Added ${added}. Skipped ${same} exact duplicate(s).` + (flag ? ` ${flag} new entr${flag > 1 ? 'ies share' : 'y shares'} a word with an existing one and ${flag > 1 ? 'are' : 'is'} flagged below.` : '') + (sk ? ` Ignored ${sk} unpaired line(s).` : '');
+      }
+      m.textContent = msg; m.hidden = false; updWords();
+    }
+    function fileImport(inp) { const f = inp.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $('#imp').value = r.result; doImport() }; r.readAsText(f) }
+    function exportAll() {
+      const j = JSON.stringify({ words: D.words, hist: D.hist, days: D.days }); $('#bk').value = j;
+      try { navigator.clipboard.writeText(j) } catch (e) { }
+      try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([j], { type: 'application/json' })); a.download = 'gregmat-backup.json'; a.click() } catch (e) { }
+      const m = $('#msg'); m.textContent = 'Backup placed in the box below (also copied or downloaded where the browser allows).'; m.hidden = false;
+    }
+    function restore() {
+      const m = $('#msg');
+      try {
+        const r = JSON.parse($('#bk').value); if (!Array.isArray(r.words)) throw 0;
+        D.words = r.words.filter(w => w && w.w && w.d).map(w => ({ ...mk(w), ...w })); D.hist = r.hist || []; D.days = r.days || {}; D.quiz = null;
+        fixIds(); save(); m.textContent = `Restored ${D.words.length} words.`; updWords();
+      } catch (e) { m.textContent = 'That backup could not be read.' }
+      m.hidden = false;
+    }
+    function confirmDo(b, fn) {
+      if (b.dataset.a) { fn(); return }
+      b.dataset.o = b.textContent; b.dataset.a = 1; b.textContent = 'Click again to confirm';
+      setTimeout(() => { if (b.isConnected && b.dataset.a) { delete b.dataset.a; b.textContent = b.dataset.o } }, 3500);
+    }
+    function resetStats() { D.words.forEach(w => { w.c = w.x = w.s = w.lw = w.t = 0 }); D.hist = []; D.days = {}; D.quiz = null; save(); render() }
+    function clearBank() { D.words = []; D.quiz = null; reindex(); save(); updWords() }
+    function setCfg(k, v) { D.cfg[k] = v; save(); render() }
+    function setTab(t) { tab = t; msg = ''; ed = null; render() }
+    function setFilter(f) { filter = f; shown = 100; document.querySelectorAll('.chips button').forEach(b => b.classList.toggle('on', b.dataset.f === f)); updList() }
+    function setTheme() { const o = ['auto', 'light', 'dark']; D.theme = o[(o.indexOf(D.theme) + 1) % 3]; save(); applyTheme(); render() }
+    function applyTheme() { D.theme === 'auto' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', D.theme) }
+
+    /* ---------- charts (plain SVG) ---------- */
+    function lineChart() {
+      const h = D.hist.slice(-30);
+      if (h.length < 2) return '<div class="mut">Finish at least two quizzes to see your accuracy trend.</div>';
+      const W = 320, H = 140, p = 26, x = i => p + i * (W - p - 8) / (h.length - 1), y = v => H - 18 - v * (H - 34);
+      const pts = h.map((s, i) => [x(i), y(s.r / s.n)]), line = pts.map(q => q.join(',')).join(' ');
+      return `<svg viewBox="0 0 ${W} ${H}">${[0, .5, 1].map(v => `<line x1="${p}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--bd)"/><text x="0" y="${y(v) + 3}">${v * 100}%</text>`).join('')}
+  <polygon points="${p},${y(0)} ${line} ${W - 8},${y(0)}" fill="var(--ac)" opacity=".08"/>
+  <polyline points="${line}" fill="none" stroke="var(--ac)" stroke-width="2" stroke-linejoin="round"/>
+  ${pts.map((q, i) => `<circle cx="${q[0]}" cy="${q[1]}" r="3" fill="var(--card)" stroke="var(--ac)" stroke-width="1.5"><title>${Math.round(h[i].r / h[i].n * 100)}% (${h[i].r}/${h[i].n})</title></circle>`).join('')}
+  <text x="${p}" y="${H - 3}">oldest</text><text x="${W - 36}" y="${H - 3}">latest</text></svg>`;
+    }
+    function barChart() {
+      const days = []; for (let i = 13; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); days.push([day(d), 'SMTWTFS'[d.getDay()]]) }
+      const v = days.map(d => D.days[d[0]] || 0), mx = Math.max(1, ...v), W = 320, H = 130, bw = (W - 10) / 14;
+      return `<svg viewBox="0 0 ${W} ${H}">${v.map((n, i) => { const bh = n / mx * (H - 42), cx = 5 + i * bw + bw / 2; return `<rect x="${cx - bw / 2 + 3}" y="${H - 22 - bh}" width="${bw - 6}" height="${Math.max(bh, 1.5)}" rx="2" fill="var(--ac)" opacity="${n ? 1 : .25}"><title>${days[i][0]}: ${n} answers</title></rect><text x="${cx}" y="${H - 8}" text-anchor="middle">${days[i][1]}</text>${n ? `<text x="${cx}" y="${H - 26 - bh}" text-anchor="middle">${n}</text>` : ''}` }).join('')}</svg>`;
+    }
+    function donut(c) {
+      const cols = { mastered: 'var(--ok)', learning: 'var(--ac)', weak: 'var(--no)', new: 'var(--bd)' }, T = D.words.length || 1, C = 2 * Math.PI * 44; let off = 0;
+      const seg = Object.keys(cols).map(k => { const l = c[k] / T * C, s = `<circle r="44" cx="60" cy="60" fill="none" stroke="${cols[k]}" stroke-width="10" stroke-dasharray="${l} ${C - l}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"><title>${k}: ${c[k]}</title></circle>`; off += l; return s }).join('');
+      return `<div class="row" style="flex-wrap:nowrap;gap:24px"><svg viewBox="0 0 120 120" style="width:130px;flex:none">${seg}<text x="60" y="62" text-anchor="middle" style="font:600 22px Georgia,serif;fill:var(--tx)">${D.words.length}</text><text x="60" y="76" text-anchor="middle">words</text></svg>
+  <div class="legend" style="flex-direction:column">${Object.keys(cols).map(k => `<span><i style="background:${cols[k]}"></i>${k} · ${c[k]}</span>`).join('')}</div></div>`;
+    }
+    function hardBars() {
+      const l = D.words.filter(w => w.x > 0).sort((a, b) => b.x / tot(b) - a.x / tot(a) || b.x - a.x).slice(0, 8);
+      if (!l.length) return '<div class="mut">No mistakes yet.</div>';
+      return l.map(w => `<div class="hb"><span>${esc(w.w)}</span><div class="bar"><i style="width:${Math.round(w.x / tot(w) * 100)}%"></i></div><span style="width:auto;color:var(--mut);font-family:inherit">${w.x}/${tot(w)}</span></div>`).join('');
+    }
+
+    /* ---------- views ---------- */
+    const stats = a => `<div class="stats">${a.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>`;
+    function editForm(w) {
+      return `<div class="edit"><input type="text" id="ew" value="${esc(w.w)}" placeholder="Word"><textarea id="ed" placeholder="Meaning">${esc(w.d)}</textarea><div class="row" style="margin:0"><button class="pri sm" onclick="saveEdit('${w.id}')">Save</button><button class="sm" onclick="cancelEdit()">Cancel</button></div></div>`;
+    }
+    function wordRow(w, full) {
+      if (full && ed === w.id) return `<div class="item">${editForm(w)}</div>`;
+      const s = status(w), a = acc(w);
+      return `<div class="item"><div><b>${esc(w.w)}</b><span class="badge ${s}">${s}${a !== null ? ' · ' + Math.round(a * 100) + '%' : ''}</span>${DUP.has(w.id) ? '<span class="badge dup">duplicate</span>' : ''}<div class="mut">${esc(w.d)}</div></div>${full ? `<div class="acts"><button class="sm" onclick="editRow('${w.id}')">Edit</button><button class="sm" onclick="delWord('${w.id}')">Delete</button></div>` : ''}</div>`;
+    }
+    function dayStreak() { let n = 0; const d = new Date(); if (!D.days[day(d)]) d.setDate(d.getDate() - 1); while (D.days[day(d)]) { n++; d.setDate(d.getDate() - 1) } return n }
+    function overall() { let c = 0, x = 0; D.words.forEach(w => { c += w.c; x += w.x }); return { c, x, a: c + x ? Math.round(c / (c + x) * 100) + '%' : '–' } }
+
+    function viewQuiz() {
+      const Q = D.quiz, cf = D.cfg;
+      if (!Q) {
+        const c = counts(), pool = { all: D.words.length, weak: c.weak, new: c.new }[cf.scope], o = overall();
+        const b = (k, v, l) => `<button class="${cf[k] === v ? 'on' : ''}" onclick="setCfg('${k}',${typeof v === 'number' ? v : `'${v}'`})">${l}</button>`;
+        return stats([[dayStreak(), 'day streak'], [D.days[day()] || 0, 'answers today'], [o.a, 'overall accuracy'], [c.mastered, 'mastered']]) +
+          `<div class="card"><h2>New quiz</h2>
+      <div class="lbl" style="margin-top:0">Words</div><div class="row">${b('scope', 'all', 'All (' + D.words.length + ')')}${b('scope', 'weak', 'Weak (' + c.weak + ')')}${b('scope', 'new', 'Unseen (' + c.new + ')')}</div>
+      <div class="lbl">Direction</div><div class="row">${b('mode', 'w2d', 'Word to meaning')}${b('mode', 'd2w', 'Meaning to word')}${b('mode', 'mix', 'Mixed')}</div>
+      <div class="lbl">Questions</div><div class="row">${[10, 20, 50, 100].map(n => b('n', n, n)).join('')}</div>
+      <div class="row" style="margin-top:20px"><button class="pri" onclick="startScope()" ${D.words.length < 4 || !pool ? 'disabled' : ''}>Start quiz · ${Math.min(cf.n, pool)} questions</button></div>
+      ${D.words.length < 4 ? '<div class="mut">Add at least 4 words in the Words tab.</div>' : ''}
+      <div class="mut" style="margin-top:12px">Weak means the last answer was wrong, or accuracy is under 60% after two or more tries. Weak and unseen words appear more often. Keys 1–4 answer, Enter continues.</div></div>`;
+      }
+      if (!Q.done) {
+        const q = Q.qs[Q.i], a = q.a !== null, T = Q.qs.length, w = IDX.get(q.k) || { id: '', w: '', d: '' }, right = Q.qs.filter(isRight).length;
+        const prompt = q.dir === 'w2d' ? `<div class="prompt">${esc(w.w)}</div>` : `<div class="prompt def">${esc(w.d)}</div>`;
+        return `<div class="card"><div class="row spread" style="margin:0"><span class="mut">Question ${Q.i + 1} of ${T} · ${right} correct</span><span class="row" style="margin:0"><button class="sm" onclick="editRow('${q.k}')">Edit word</button><button class="sm" onclick="quit()">Quit</button></span></div>
+      <div class="bar"><i style="width:${(Q.i + (a ? 1 : 0)) / T * 100}%"></i></div>
+      <div class="mut">${q.dir === 'w2d' ? 'Choose the meaning' : 'Choose the word'}</div>${prompt}
+      ${ed === q.k ? `<div style="margin-bottom:16px">${editForm(w)}</div>` : ''}
+      ${q.o.map((id, k) => { let c = ''; if (a) { if (id === q.k) c = 'ok'; else if (k === q.a) c = 'no' } return `<button class="opt ${c}" onclick="answer(${k})" ${a ? 'disabled' : ''}><kbd>${k + 1}</kbd><span>${esc(txt(id, q.dir))}</span></button>` }).join('')}
+      ${a ? `<div class="row"><button class="pri" onclick="next()">${Q.i + 1 >= T ? 'See results' : 'Next'}</button></div>` : ''}</div>`;
+      }
+      const T = Q.qs.length, missed = Q.qs.filter(q => !isRight(q)), r = T - missed.length, pc = Math.round(r / T * 100), C = 2 * Math.PI * 50;
+      return `<div class="card" style="text-align:center"><h2>Results</h2>
+    <svg viewBox="0 0 120 120" style="width:140px;margin:0 auto"><circle cx="60" cy="60" r="50" fill="none" stroke="var(--bd)" stroke-width="8"/><circle cx="60" cy="60" r="50" fill="none" stroke="${pc >= 70 ? 'var(--ok)' : pc >= 40 ? 'var(--wn)' : 'var(--no)'}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C * pc / 100} ${C}" transform="rotate(-90 60 60)"/><text x="60" y="68" text-anchor="middle" style="font:600 26px Georgia,serif;fill:var(--tx)">${pc}%</text></svg>
+    <div class="mut">${r} correct, ${missed.length} incorrect out of ${T}</div>
+    <div class="row" style="justify-content:center">${missed.length ? '<button class="pri" onclick="retry()">Retry missed</button>' : ''}<button onclick="quit()">New quiz</button></div></div>
+    <div class="card"><h2>Missed this round (${missed.length})</h2>${missed.length ? missed.map(q => IDX.get(q.k)).filter(Boolean).map(w => wordRow(w)).join('') : '<div class="mut">A perfect round.</div>'}</div>`;
+    }
+    function viewWords() {
+      return `<div class="card"><h2>Add words <span class="mut">· <span id="cnt">${D.words.length}</span> in bank</span></h2>
+    <div class="mut">Paste as many as you like. Use the word on one line and its meaning on the next, or "word - meaning", or tab-separated. Exact duplicates are skipped; entries that repeat a word with a different meaning are added and flagged for review.</div>
+    <div class="row"><textarea id="imp" placeholder="abound&#10;exist in large quantities"></textarea></div>
+    <div class="row"><button class="pri" onclick="doImport()">Import</button><label class="mut">or choose a file <input type="file" accept=".txt,.csv,.tsv,text/plain" onchange="fileImport(this)"></label></div>
+    <div class="note" id="msg" ${msg ? '' : 'hidden'}>${esc(msg)}</div></div>
+    <div class="card" id="dupcard" hidden><h2>Duplicates</h2><div id="dups"></div></div>
+    <div class="card"><h2>Word bank</h2>
+    <input type="text" placeholder="Search words or meanings" value="${esc(sq)}" oninput="sq=this.value;shown=100;clearTimeout(qt);qt=setTimeout(updList,120)">
+    <div class="row chips">${['all', 'weak', 'new', 'learning', 'mastered'].map(f => `<button class="sm ${filter === f ? 'on' : ''}" data-f="${f}" onclick="setFilter('${f}')">${f}</button>`).join('')}</div>
+    <div id="list"></div></div>
+    <div class="card"><h2>Backup and data</h2>
+    <div class="mut">Everything saves automatically in this browser. Export a backup to keep a copy or move to another device.</div>
+    <div class="row"><button onclick="exportAll()">Export backup</button><button onclick="restore()">Restore from box</button></div>
+    <textarea id="bk" placeholder="Backup appears here. Paste a backup and press Restore to load it."></textarea>
+    <div class="row"><button class="dng" onclick="confirmDo(this,resetStats)">Reset progress</button><button class="dng" onclick="confirmDo(this,clearBank)">Delete all words</button></div></div>`;
+    }
+    function updWords() { const c = $('#cnt'); if (c) c.textContent = D.words.length; updDups(); updList() }
+    function updDups() {
+      const card = $('#dupcard'); if (!card) return;
+      const g = dupGroups(); DUP = new Set(g.flat().map(w => w.id)); card.hidden = !g.length; if (!g.length) return;
+      const extra = g.reduce((a, b) => a + b.length - 1, 0);
+      $('#dups').innerHTML = `<div class="row spread"><span>${g.length} word${g.length > 1 ? 's appear' : ' appears'} more than once (${extra} extra entr${extra > 1 ? 'ies' : 'y'}).</span><button class="dng sm" onclick="confirmDo(this,autoDedupe)">Remove all extras</button></div>
+  <div class="mut">Remove all extras keeps the most-practised entry of each group. Or choose which one to keep below.</div>`+
+        g.slice(0, 40).map(grp => `<div class="dgrp">${grp.map(w => `<div class="item"><div><b>${esc(w.w)}</b><span class="badge">${tot(w)} answer${tot(w) == 1 ? '' : 's'}</span><div class="mut">${esc(w.d)}</div></div><div class="acts"><button class="sm" onclick="keepOnly('${w.id}')">Keep this</button><button class="sm" onclick="delWord('${w.id}')">Remove</button></div></div>`).join('')}</div>`).join('') + (g.length > 40 ? `<div class="mut">+${g.length - 40} more groups</div>` : '');
+    }
+    function updList() {
+      const el = $('#list'); if (!el) return;
+      const q = sq.toLowerCase().trim();
+      const l = D.words.filter(w => (filter === 'all' || status(w) === filter) && (!q || w.w.toLowerCase().includes(q) || w.d.toLowerCase().includes(q)));
+      l.sort((a, b) => a.w.localeCompare(b.w));
+      el.innerHTML = (l.length ? l.slice(0, shown).map(w => wordRow(w, 1)).join('') : '<div class="mut">No matches.</div>') +
+        (l.length > shown ? `<div class="row"><button onclick="shown+=200;updList()">Show more · ${l.length - shown} left</button></div>` : '') + `<div class="mut" style="margin-top:8px">${l.length} word${l.length == 1 ? '' : 's'}</div>`;
+    }
+    function viewStats() {
+      const c = counts(), o = overall(), weak = D.words.filter(isWeak).sort((a, b) => (acc(a) ?? 1) - (acc(b) ?? 1));
+      return stats([[D.words.length, 'words'], [D.words.length - c.new, 'seen'], [o.c + o.x, 'answers'], [o.a, 'accuracy']]) +
+        `<div class="card"><h2>Mastery</h2>${donut(c)}</div>
+    <div class="card"><h2>Accuracy per quiz</h2>${lineChart()}</div>
+    <div class="card"><h2>Answers, last 14 days</h2>${barChart()}</div>
+    <div class="card"><h2>Hardest words</h2>${hardBars()}</div>
+    <div class="card"><h2>Weak words (${weak.length})</h2>${weak.length ? `<div class="row"><button class="pri" onclick="practiceWeak()">Practise weak words</button></div>` + weak.slice(0, 100).map(w => wordRow(w)).join('') + (weak.length > 100 ? `<div class="mut">+${weak.length - 100} more</div>` : '') : '<div class="mut">None right now.</div>'}</div>`;
+    }
+    function render() {
+      const key = tab + (tab === 'quiz' ? (D.quiz ? (D.quiz.done ? 'r' : 'q' + D.quiz.i) : 's') : '');
+      const v = tab === 'quiz' ? viewQuiz() : tab === 'words' ? viewWords() : viewStats();
+      $('#app').innerHTML = `<header><h1><small>Gregmat vocabulary</small>Word Quiz</h1><button class="sm" onclick="setTheme()">Theme: ${D.theme}</button></header>
+  ${saveFail ? '<div class="warn">Could not save to browser storage. Export a backup from the Words tab.</div>' : ''}
+  <nav>${[['quiz', 'Quiz'], ['words', 'Words'], ['stats', 'Stats']].map(([k, l]) => `<button class="${tab === k ? 'on' : ''}" onclick="setTab('${k}')">${l}</button>`).join('')}</nav><main class="${key !== lastKey ? 'enter' : ''}">${v}</main>`;
+      lastKey = key;
+      if (tab === 'words') updDups(), updList();
+      if (ed && tab === 'quiz') { const e = $('#ed'); e && e.focus() }
+    }
+    document.addEventListener('keydown', e => {
+      const Q = D.quiz; if (tab !== 'quiz' || !Q || Q.done || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+      const q = Q.qs[Q.i];
+      if (q.a === null && /^[1-4]$/.test(e.key) && q.o[e.key - 1] !== undefined) answer(+e.key - 1);
+      else if (q.a !== null && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); next() }
+    });
+    applyTheme(); render();
+  </script>
+</body>
+
+</html>

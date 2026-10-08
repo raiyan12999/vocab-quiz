@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gregmat Word Quiz</title>
+<style>
+:root{--bg:#f4f5fb;--card:#fff;--tx:#1b1f2a;--mut:#6a7185;--bd:#e4e7f1;--ac:#5b5bf0;--ac2:#8b5cf6;--ok:#16a34a;--okb:#e5f7ec;--no:#dc2626;--nob:#fdeaea;--wn:#f59e0b;--sh:0 4px 18px rgba(30,40,90,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1117;--card:#181b24;--tx:#e8eaf2;--mut:#9aa1b5;--bd:#292e3c;--ac:#818cf8;--ac2:#a78bfa;--ok:#4ade80;--okb:#12301f;--no:#f87171;--nob:#3a1a1c;--wn:#fbbf24;--sh:0 4px 18px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#0f1117;--card:#181b24;--tx:#e8eaf2;--mut:#9aa1b5;--bd:#292e3c;--ac:#818cf8;--ac2:#a78bfa;--ok:#4ade80;--okb:#12301f;--no:#f87171;--nob:#3a1a1c;--wn:#fbbf24;--sh:0 4px 18px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+#app{max-width:760px;margin:0 auto;padding:16px 14px 40px}
+header{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 14px}
+header h1{margin:0;font-size:22px;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:4px;margin-bottom:14px;box-shadow:var(--sh)}
+nav button{flex:1;border:0;background:none;padding:9px 6px;border-radius:10px;color:var(--mut);font-weight:600}
+nav button.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff}
+button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:9px 14px;cursor:pointer;transition:transform .08s,box-shadow .15s,background .15s}
+button:hover:not(:disabled){box-shadow:var(--sh)}button:active:not(:disabled){transform:scale(.97)}
+button.on{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 14%,var(--card));color:var(--ac);font-weight:600}
+button.pri{background:linear-gradient(135deg,var(--ac),var(--ac2));border:0;color:#fff;font-weight:600}
+button.dng{color:var(--no);border-color:var(--no)}
+button:disabled{opacity:.45;cursor:default}
+button.sm{padding:4px 9px;font-size:13px;border-radius:8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--sh);animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+h2{margin:0 0 12px;font-size:17px}
+.mut{color:var(--mut);font-size:14px}
+.lbl{color:var(--mut);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.tile{background:var(--bg);border-radius:14px;padding:12px}
+.tile b{display:block;font-size:24px}
+.prompt{font-size:30px;font-weight:800;margin:8px 0 16px;line-height:1.25}
+.prompt.def{font-size:20px;font-weight:600}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;margin-bottom:8px;padding:12px 14px}
+.opt kbd{flex:none;min-width:22px;text-align:center;font:12px ui-monospace,monospace;border:1px solid var(--bd);border-radius:6px;padding:1px 5px;color:var(--mut)}
+.opt.ok{background:var(--okb);border-color:var(--ok)}
+.opt.no{background:var(--nob);border-color:var(--no);animation:shake .3s}
+.bar{height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin:6px 0 12px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:4px;transition:width .3s}
+.item{padding:10px 0;border-top:1px solid var(--bd);display:flex;gap:10px;align-items:flex-start}
+.item:first-child{border-top:0}
+.item>div{flex:1;min-width:0}
+.item b{margin-right:6px}
+.badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--bg);color:var(--mut);white-space:nowrap}
+.badge.weak{background:var(--nob);color:var(--no)}.badge.mastered{background:var(--okb);color:var(--ok)}.badge.new{color:var(--ac)}
+input[type=text],textarea{width:100%;font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:12px;padding:10px 12px}
+textarea{min-height:130px;font:13px/1.4 ui-monospace,Menlo,monospace}
+input:focus,textarea:focus{outline:2px solid var(--ac);outline-offset:-1px}
+.big{font-size:44px;font-weight:800}
+.warn{background:var(--nob);color:var(--no);border-radius:12px;padding:8px 12px;margin-bottom:12px;font-size:14px}
+.note{background:color-mix(in srgb,var(--ac) 12%,var(--card));border-radius:12px;padding:10px 12px;margin-bottom:12px}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--mut);font:10px system-ui}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mut)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.hb{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
+.hb span:first-child{width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.hb .bar{flex:1;margin:0}.hb .bar i{background:var(--no)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const SEED=`abound
+exist in large quantities
+adulterate
+make impure by adding a foreign or inferior substance
+abate
+become less in amount or intensity
+abstain
+refrain from doing, consuming, or partaking in something
+aloof
+distant, cold, or detached in manner
+admonish
+scold or reprimand; take to task
+appease
+make peace with
+amorphous
+having no definite form or distinct shape
+advocate
+a person who pleads for a person, cause, or idea
+abjure
+formally reject or disavow a formerly held belief
+approbation
+official acceptance or agreement
+clangor
+a loud resonant repeating noise
+aesthetic
+characterized by an appreciation of beauty or good taste
+arbitrary
+based on or subject to individual discretion or preference
+austere
+of a stern or strict bearing or demeanor
+aggrandize
+embellish; increase the scope, power, or importance of
+anomalous
+deviating from the general or common order or type
+cherish
+be fond of
+conventional
+following accepted customs and proprieties
+affectation
+a deliberate pretense or exaggerated display
+archaic
+so extremely old as seeming to belong to an earlier period
+belie
+be in contradiction with
+alacrity
+liveliness and eagerness
+antipathy
+a feeling of intense dislike
+corroborate
+give evidence for
+debunk
+expose while ridiculing
+alleviate
+provide physical relief, as from pain
+clamorous
+conspicuously and offensively loud
+capricious
+determined by chance or impulse rather than by necessity
+ambivalent
+uncertain or unable to decide about what course to follow`;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const day=(d=new Date())=>d.toLocaleDateString('en-CA');
+const mk=p=>({w:p.w,d:p.d,c:0,x:0,s:0,lw:0,t:0});
+
+/* ---------- parsing ---------- */
+function parse(t){
+  const L=t.split(/\r?\n/).map(l=>l.trim()).filter(Boolean),P=[];let sk=0;
+  const SEP=/\t| [-–—|] |\s*\|\s*/;
+  if(L.length&&L.filter(l=>SEP.test(l)).length>=L.length*.6){
+    L.forEach(l=>{const m=l.split(SEP);const w=m.shift().trim(),d=m.join(' - ').trim();w&&d?P.push({w,d}):sk++});
+  }else{
+    for(let i=0;i+1<L.length;i+=2)P.push({w:L[i],d:L[i+1]});
+    if(L.length%2)sk++;
+  }
+  return{P,sk};
+}
+
+/* ---------- persistent storage (localStorage, one key) ---------- */
+let saveFail=false;
+function load(){
+  try{const r=JSON.parse(localStorage.getItem('gm2'));if(r&&Array.isArray(r.words))return r}catch(e){}
+  let words=[];
+  try{ // migrate v1 data if present
+    const b=JSON.parse(localStorage.getItem('gm_bank')||'null'),st=JSON.parse(localStorage.getItem('gm_stats')||'{}');
+    if(b&&b.length)words=b.map(p=>{const s=st[p.w]||{};return{...mk(p),c:s.c||0,x:s.x||0}});
+  }catch(e){}
+  if(!words.length)words=parse(SEED).P.map(mk);
+  return{words,hist:[],days:{},cfg:{scope:'all',n:20,mode:'w2d'},theme:'auto',quiz:null};
+}
+function save(){try{localStorage.setItem('gm2',JSON.stringify(D));saveFail=false}catch(e){saveFail=true}}
+let D=load(),IDX=new Map(),tab='quiz',msg='',filter='all',shown=100,armed={};
+D.cfg=Object.assign({scope:'all',n:20,mode:'w2d'},D.cfg);
+function reindex(){IDX=new Map(D.words.map(w=>[w.w.toLowerCase(),w]))}
+reindex();
+
+/* ---------- word status ---------- */
+const tot=w=>w.c+w.x, acc=w=>tot(w)?w.c/tot(w):null;
+const isNew=w=>!tot(w);
+const isWeak=w=>(tot(w)>=1&&w.lw)||(tot(w)>=2&&acc(w)<.6);
+const isMast=w=>w.s>=3&&acc(w)>=.8&&!w.lw;
+const status=w=>isNew(w)?'new':isWeak(w)?'weak':isMast(w)?'mastered':'learning';
+const weight=w=>isNew(w)?2:isWeak(w)?4:isMast(w)?.4:1;
+const counts=()=>{const c={new:0,weak:0,learning:0,mastered:0};D.words.forEach(w=>c[status(w)]++);return c};
+
+/* ---------- quiz engine ---------- */
+function pick(pool,n){
+  const arr=pool.map(w=>[w,weight(w)]),out=[];
+  let sum=arr.reduce((a,b)=>a+b[1],0);
+  while(out.length<n&&arr.length){
+    let r=Math.random()*sum,i=0;
+    while(i<arr.length-1&&r>=arr[i][1]){r-=arr[i][1];i++}
+    const [w,wt]=arr.splice(i,1)[0];sum-=wt;out.push(w);
+  }
+  return out;
+}
+function options(w,dir){
+  const key=dir==='w2d'?'d':'w',seen=new Set([w[key]]),o=[w[key]],W=D.words;
+  for(let t=0;t<80&&o.length<4;t++){const x=W[Math.random()*W.length|0];if(!seen.has(x[key])){seen.add(x[key]);o.push(x[key])}}
+  for(let i=o.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[o[i],o[j]]=[o[j],o[i]]}
+  return o;
+}
+function startQuiz(words){
+  const m=D.cfg.mode;
+  D.quiz={qs:words.map(w=>{const dir=m==='mix'?(Math.random()<.5?'w2d':'d2w'):m;return{k:w.w.toLowerCase(),dir,o:options(w,dir),a:null}}),i:0,done:false};
+  save();render();
+}
+function startScope(){
+  const f={all:()=>true,weak:isWeak,new:isNew}[D.cfg.scope];
+  const pool=D.words.filter(f);
+  if(D.words.length<4||!pool.length)return;
+  startQuiz(pick(pool,Math.min(D.cfg.n,pool.length)));
+}
+const ans=(q)=>{const w=IDX.get(q.k);return w?(q.dir==='w2d'?w.d:w.w):''};
+const isRight=q=>q.a!==null&&q.o[q.a]===ans(q);
+function answer(k){
+  const Q=D.quiz;if(!Q||Q.done)return;const q=Q.qs[Q.i];if(q.a!==null)return;
+  q.a=k;const w=IDX.get(q.k);
+  if(w){if(isRight(q)){w.c++;w.s++;w.lw=0}else{w.x++;w.s=0;w.lw=1}w.t=Date.now()}
+  const d=day();D.days[d]=(D.days[d]||0)+1;
+  save();render();
+}
+function next(){
+  const Q=D.quiz;Q.i++;
+  if(Q.i>=Q.qs.length){
+    Q.done=true;
+    const r=Q.qs.filter(isRight).length;
+    D.hist.push({t:Date.now(),n:Q.qs.length,r});if(D.hist.length>300)D.hist.shift();
+  }
+  save();render();
+}
+function retry(){const m=D.quiz.qs.filter(q=>!isRight(q)).map(q=>IDX.get(q.k)).filter(Boolean);if(m.length)startQuiz(m)}
+function quit(){D.quiz=null;save();render()}
+function practiceWeak(){D.cfg.scope='weak';tab='quiz';D.quiz=null;startScope()}
+
+/* ---------- import / export ---------- */
+function addPairs(P){
+  let added=0,upd=0;
+  P.forEach(p=>{const k=p.w.toLowerCase(),e=IDX.get(k);if(e){if(e.d!==p.d){e.d=p.d;upd++}}else{const n=mk(p);D.words.push(n);IDX.set(k,n);added++}});
+  return{added,upd};
+}
+function doImport(){
+  const {P,sk}=parse($('#imp').value);
+  if(!P.length){msg='Nothing to import. Put the word on one line and its meaning on the next, or use "word - meaning".';return render()}
+  const{added,upd}=addPairs(P);save();
+  msg=`Added ${added}, updated ${upd}`+(sk?`, skipped ${sk} unpaired line(s)`:'')+`. Bank: ${D.words.length} words.`;
+  render();
+}
+function fileImport(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{$('#imp').value=r.result;doImport()};r.readAsText(f);
+}
+function exportAll(){
+  const j=JSON.stringify({words:D.words,hist:D.hist,days:D.days});
+  $('#bk').value=j;
+  try{navigator.clipboard.writeText(j)}catch(e){}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([j],{type:'application/json'}));a.download='gregmat-backup.json';a.click()}catch(e){}
+  msg='Backup is in the box below (copied to clipboard where allowed, and downloaded where supported).';
+  const m=$('#msg');if(m)m.textContent=msg;
+}
+function restore(){
+  try{
+    const r=JSON.parse($('#bk').value);if(!Array.isArray(r.words))throw 0;
+    D.words=r.words.filter(w=>w&&w.w&&w.d).map(w=>({...mk(w),...w}));
+    D.hist=r.hist||[];D.days=r.days||{};D.quiz=null;reindex();save();msg=`Restored ${D.words.length} words.`;
+  }catch(e){msg='That backup could not be read.'}
+  render();
+}
+function confirmDo(id,fn){
+  if(armed[id]&&Date.now()-armed[id]<3500){armed={};fn();return}
+  armed[id]=Date.now();render();setTimeout(()=>{if(armed[id]){delete armed[id];render()}},3600);
+}
+function resetStats(){D.words.forEach(w=>{w.c=w.x=w.s=w.lw=w.t=0});D.hist=[];D.days={};D.quiz=null;save();render()}
+function clearBank(){D.words=[];D.quiz=null;reindex();save();render()}
+function delWord(k){D.words=D.words.filter(w=>w.w.toLowerCase()!==k);reindex();save();updList();$('#cnt').textContent=D.words.length}
+function setCfg(k,v){D.cfg[k]=v;save();render()}
+function setTab(t){tab=t;msg='';render()}
+function setTheme(){const o=['auto','light','dark'];D.theme=o[(o.indexOf(D.theme)+1)%3];save();applyTheme();render()}
+function applyTheme(){D.theme==='auto'?document.documentElement.removeAttribute('data-theme'):document.documentElement.setAttribute('data-theme',D.theme)}
+
+/* ---------- charts (plain SVG) ---------- */
+function lineChart(){
+  const h=D.hist.slice(-30);
+  if(h.length<2)return '<div class="mut">Finish at least 2 quizzes to see your accuracy trend.</div>';
+  const W=320,H=140,p=24,x=i=>p+i*(W-p-8)/(h.length-1),y=v=>H-18-v*(H-34);
+  const pts=h.map((s,i)=>[x(i),y(s.r/s.n)]),line=pts.map(q=>q.join(',')).join(' ');
+  return `<svg viewBox="0 0 ${W} ${H}">${[0,.5,1].map(v=>`<line x1="${p}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--bd)"/><text x="2" y="${y(v)+3}">${v*100}%</text>`).join('')}
+  <polygon points="${p},${y(0)} ${line} ${W-8},${y(0)}" fill="var(--ac)" opacity=".12"/>
+  <polyline points="${line}" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linejoin="round"/>
+  ${pts.map((q,i)=>`<circle cx="${q[0]}" cy="${q[1]}" r="3.5" fill="var(--ac)"><title>${Math.round(h[i].r/h[i].n*100)}% (${h[i].r}/${h[i].n})</title></circle>`).join('')}
+  <text x="${p}" y="${H-3}">oldest</text><text x="${W-40}" y="${H-3}">latest</text></svg>`;
+}
+function barChart(){
+  const days=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push([day(d),'SMTWTFS'[d.getDay()]])}
+  const v=days.map(d=>D.days[d[0]]||0),mx=Math.max(1,...v),W=320,H=130,bw=(W-10)/14;
+  return `<svg viewBox="0 0 ${W} ${H}">${v.map((n,i)=>{const bh=n/mx*(H-40);return `<rect x="${5+i*bw+3}" y="${H-22-bh}" width="${bw-6}" height="${Math.max(bh,1)}" rx="3" fill="var(--ac)" opacity="${n?1:.25}"><title>${days[i][0]}: ${n} answers</title></rect><text x="${5+i*bw+bw/2-3}" y="${H-8}">${days[i][1]}</text>${n?`<text x="${5+i*bw+bw/2-(String(n).length*2.5)}" y="${H-26-bh}">${n}</text>`:''}`}).join('')}</svg>`;
+}
+function donut(c){
+  const cols={mastered:'var(--ok)',learning:'var(--ac)',weak:'var(--no)',new:'var(--bd)'},T=D.words.length||1,C=2*Math.PI*40;let off=0;
+  const seg=Object.keys(cols).map(k=>{const l=c[k]/T*C,s=`<circle r="40" cx="60" cy="60" fill="none" stroke="${cols[k]}" stroke-width="16" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"><title>${k}: ${c[k]}</title></circle>`;off+=l;return s}).join('');
+  return `<div class="row" style="flex-wrap:nowrap"><svg viewBox="0 0 120 120" style="width:130px;flex:none">${seg}<text x="60" y="58" text-anchor="middle" style="font:700 18px system-ui;fill:var(--tx)">${D.words.length}</text><text x="60" y="72" text-anchor="middle">words</text></svg>
+  <div class="legend" style="flex-direction:column">${Object.keys(cols).map(k=>`<span><i style="background:${cols[k]}"></i>${k} ${c[k]}</span>`).join('')}</div></div>`;
+}
+function hardBars(){
+  const l=D.words.filter(w=>tot(w)>=1&&w.x>0).sort((a,b)=>b.x/tot(b)-a.x/tot(a)||b.x-a.x).slice(0,8);
+  if(!l.length)return '<div class="mut">No mistakes yet.</div>';
+  return l.map(w=>`<div class="hb"><span>${esc(w.w)}</span><div class="bar"><i style="width:${Math.round(w.x/tot(w)*100)}%"></i></div><span style="width:auto;color:var(--mut)">${w.x}/${tot(w)}</span></div>`).join('');
+}
+
+/* ---------- views ---------- */
+function wordRow(w,del){
+  const s=status(w),a=acc(w);
+  return `<div class="item"><div><b>${esc(w.w)}</b><span class="badge ${s}">${s}${a!==null?' · '+Math.round(a*100)+'%':''}</span><div class="mut">${esc(w.d)}</div></div>${del?`<button class="sm" title="Delete" onclick="delWord('${esc(w.w.toLowerCase()).replace(/\\/g,'\\\\')}')">✕</button>`:''}</div>`;
+}
+function dayStreak(){let n=0;const d=new Date();if(!D.days[day(d)])d.setDate(d.getDate()-1);while(D.days[day(d)]){n++;d.setDate(d.getDate()-1)}return n}
+function overall(){let c=0,x=0;D.words.forEach(w=>{c+=w.c;x+=w.x});return{c,x,a:c+x?Math.round(c/(c+x)*100)+'%':'–'}}
+
+function viewQuiz(){
+  const Q=D.quiz,cf=D.cfg;
+  if(!Q){
+    const c=counts(),pool={all:D.words.length,weak:c.weak,new:c.new}[cf.scope],o=overall();
+    const b=(k,v,l)=>`<button class="${cf[k]===v?'on':''}" onclick="setCfg('${k}',${typeof v==='number'?v:`'${v}'`})">${l}</button>`;
+    return `<div class="grid" style="margin-bottom:14px">
+      <div class="card tile" style="margin:0"><b>${dayStreak()}🔥</b><span class="mut">day streak</span></div>
+      <div class="card tile" style="margin:0"><b>${D.days[day()]||0}</b><span class="mut">answers today</span></div>
+      <div class="card tile" style="margin:0"><b>${o.a}</b><span class="mut">overall accuracy</span></div>
+      <div class="card tile" style="margin:0"><b>${c.mastered}</b><span class="mut">mastered</span></div></div>
+    <div class="card"><h2>New quiz</h2>
+      <div class="lbl">Words</div><div class="row">${b('scope','all','All ('+D.words.length+')')}${b('scope','weak','Weak ('+c.weak+')')}${b('scope','new','Unseen ('+c.new+')')}</div>
+      <div class="lbl">Direction</div><div class="row">${b('mode','w2d','Word → meaning')}${b('mode','d2w','Meaning → word')}${b('mode','mix','Mixed')}</div>
+      <div class="lbl">Questions</div><div class="row">${[10,20,50,100].map(n=>b('n',n,n)).join('')}</div>
+      <div class="row"><button class="pri" onclick="startScope()" ${D.words.length<4||!pool?'disabled':''}>Start quiz (${Math.min(cf.n,pool)})</button></div>
+      ${D.words.length<4?'<div class="mut">Add at least 4 words in the Words tab.</div>':''}
+      <div class="mut">Weak = last answer wrong, or under 60% accuracy after 2+ tries. Weak and unseen words appear more often. Use keys 1–4 to answer, Enter for next.</div></div>`;
+  }
+  if(!Q.done){
+    const q=Q.qs[Q.i],a=q.a!==null,T=Q.qs.length,w=IDX.get(q.k)||{w:'',d:''},right=Q.qs.filter(isRight).length;
+    const prompt=q.dir==='w2d'?`<div class="prompt">${esc(w.w)}</div>`:`<div class="prompt def">${esc(w.d)}</div>`;
+    return `<div class="card"><div class="row" style="justify-content:space-between;margin:0"><span class="mut">Question ${Q.i+1} of ${T} · ✓ ${right}</span><button class="sm" onclick="quit()">Quit</button></div>
+      <div class="bar"><i style="width:${(Q.i+(a?1:0))/T*100}%"></i></div>
+      <div class="mut">${q.dir==='w2d'?'Pick the meaning':'Pick the word'}</div>${prompt}
+      ${q.o.map((o,k)=>{let c='';if(a){if(o===ans(q))c='ok';else if(k===q.a)c='no'}return `<button class="opt ${c}" onclick="answer(${k})" ${a?'disabled':''}><kbd>${k+1}</kbd><span>${esc(o)}</span></button>`}).join('')}
+      ${a?`<div class="row"><button class="pri" onclick="next()">${Q.i+1>=T?'See results':'Next →'}</button></div>`:''}</div>`;
+  }
+  const T=Q.qs.length,missed=Q.qs.filter(q=>!isRight(q)),r=T-missed.length,pc=Math.round(r/T*100);
+  const C=2*Math.PI*50;
+  return `<div class="card" style="text-align:center"><h2>Results</h2>
+    <svg viewBox="0 0 120 120" style="width:150px;margin:0 auto"><circle cx="60" cy="60" r="50" fill="none" stroke="var(--bd)" stroke-width="10"/><circle cx="60" cy="60" r="50" fill="none" stroke="${pc>=70?'var(--ok)':pc>=40?'var(--wn)':'var(--no)'}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C*pc/100} ${C}" transform="rotate(-90 60 60)"/><text x="60" y="66" text-anchor="middle" style="font:800 26px system-ui;fill:var(--tx)">${pc}%</text></svg>
+    <div class="mut">${r} correct, ${missed.length} incorrect out of ${T}</div>
+    <div class="row" style="justify-content:center">${missed.length?'<button class="pri" onclick="retry()">Retry missed</button>':''}<button onclick="quit()">New quiz</button></div></div>
+    <div class="card"><h2>Missed this round (${missed.length})</h2>${missed.length?missed.map(q=>wordRow(IDX.get(q.k)||{w:'?',d:'',c:0,x:0,s:0,lw:0})).join(''):'<div class="mut">Perfect round!</div>'}</div>`;
+}
+function viewWords(){
+  const a=id=>armed[id]&&Date.now()-armed[id]<3500;
+  return `<div class="card"><h2>Add words <span class="mut">(<span id="cnt">${D.words.length}</span> in bank)</span></h2>
+    <div class="mut">Paste as many as you like (2000+ is fine). Word on one line and meaning on the next, or "word - meaning", or tab-separated. Existing words get their meaning updated; progress is kept.</div>
+    <div class="row"><textarea id="imp" placeholder="abound&#10;exist in large quantities"></textarea></div>
+    <div class="row"><button class="pri" onclick="doImport()">Import</button><label class="mut">or file: <input type="file" accept=".txt,.csv,.tsv,text/plain" onchange="fileImport(this)"></label></div>
+    <div class="note" id="msg" ${msg?'':'hidden'}>${esc(msg)}</div></div>
+    <div class="card"><h2>Browse</h2>
+    <input type="text" id="q" placeholder="Search words or meanings…" oninput="shown=100;updList()">
+    <div class="row">${['all','weak','new','learning','mastered'].map(f=>`<button class="sm ${filter===f?'on':''}" onclick="filter='${f}';shown=100;render()">${f}</button>`).join('')}</div>
+    <div id="list"></div></div>
+    <div class="card"><h2>Backup &amp; data</h2>
+    <div class="mut">Everything saves automatically in this browser. Export a backup to move it to another device or keep it safe.</div>
+    <div class="row"><button onclick="exportAll()">Export backup</button><button onclick="restore()">Restore from box</button></div>
+    <textarea id="bk" placeholder="Backup JSON appears here. Paste a backup here to restore."></textarea>
+    <div class="row"><button class="dng" onclick="confirmDo('rs',resetStats)">${a('rs')?'Click again to confirm':'Reset progress'}</button><button class="dng" onclick="confirmDo('cb',clearBank)">${a('cb')?'Click again to confirm':'Delete all words'}</button></div></div>`;
+}
+function updList(){
+  const el=$('#list');if(!el)return;
+  const q=($('#q').value||'').toLowerCase().trim();
+  const l=D.words.filter(w=>(filter==='all'||status(w)===filter)&&(!q||w.w.toLowerCase().includes(q)||w.d.toLowerCase().includes(q)));
+  l.sort((a,b)=>a.w.localeCompare(b.w));
+  el.innerHTML=(l.length?l.slice(0,shown).map(w=>wordRow(w,1)).join(''):'<div class="mut">No matches.</div>')+
+    (l.length>shown?`<div class="row"><button onclick="shown+=200;updList()">Show more (${l.length-shown} left)</button></div>`:'')+
+    `<div class="mut">${l.length} word(s)</div>`;
+}
+function viewStats(){
+  const c=counts(),o=overall(),weak=D.words.filter(isWeak).sort((a,b)=>(acc(a)??1)-(acc(b)??1));
+  return `<div class="grid" style="margin-bottom:14px">
+    <div class="card tile" style="margin:0"><b>${D.words.length}</b><span class="mut">words</span></div>
+    <div class="card tile" style="margin:0"><b>${D.words.length-c.new}</b><span class="mut">seen</span></div>
+    <div class="card tile" style="margin:0"><b>${o.c+o.x}</b><span class="mut">answers</span></div>
+    <div class="card tile" style="margin:0"><b>${o.a}</b><span class="mut">accuracy</span></div></div>
+    <div class="card"><h2>Mastery</h2>${donut(c)}</div>
+    <div class="card"><h2>Accuracy per quiz</h2>${lineChart()}</div>
+    <div class="card"><h2>Answers, last 14 days</h2>${barChart()}</div>
+    <div class="card"><h2>Hardest words</h2>${hardBars()}</div>
+    <div class="card"><h2>Weak words (${weak.length})</h2>${weak.length?`<div class="row"><button class="pri" onclick="practiceWeak()">Practice weak words</button></div>`+weak.slice(0,100).map(w=>wordRow(w)).join('')+(weak.length>100?`<div class="mut">+${weak.length-100} more</div>`:''):'<div class="mut">None right now.</div>'}</div>`;
+}
+function render(){
+  const v=tab==='quiz'?viewQuiz():tab==='words'?viewWords():viewStats();
+  $('#app').innerHTML=`<header><h1>Gregmat Word Quiz</h1><button class="sm" onclick="setTheme()" title="Theme">${{auto:'🌗 Auto',light:'☀️ Light',dark:'🌙 Dark'}[D.theme]}</button></header>
+  ${saveFail?'<div class="warn">Could not save to browser storage. Export a backup from the Words tab.</div>':''}
+  <nav>${[['quiz','Quiz'],['words','Words'],['stats','Stats']].map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="setTab('${k}')">${l}</button>`).join('')}</nav>${v}`;
+  if(tab==='words')updList();
+}
+document.addEventListener('keydown',e=>{
+  const Q=D.quiz;if(tab!=='quiz'||!Q||Q.done||/INPUT|TEXTAREA/.test(e.target.tagName))return;
+  const q=Q.qs[Q.i];
+  if(q.a===null&&/^[1-4]$/.test(e.key)&&q.o[e.key-1]!==undefined)answer(+e.key-1);
+  else if(q.a!==null&&(e.key==='Enter'||e.key===' ')){e.preventDefault();next()}
+});
+applyTheme();render();
+</script>
+</body>
+</html>
